@@ -5,8 +5,9 @@ from src.utils.observation import Observation, Observations
 
 
 class KNNCPD:
-    def __init__(self, window_size: int, k=3, metric: tp.Callable[[Observation, Observation], float] = None,
-                 threshold: float = 0.5, package_size: int = 1, observations: Observations = None, offset=0):
+    def __init__(self, window_size: int,  observations: Observations,
+                 metric: tp.Callable[[Observation, Observation], float], k=3,
+                 threshold: float = 0.5, package_size: int = 1, offset=0):
         self._k = k
         self._metric = metric
         self._threshold = threshold

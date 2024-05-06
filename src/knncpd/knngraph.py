@@ -7,22 +7,18 @@ from src.utils.observation_heap import NNHeap
 
 
 class KNNGraph:
-    def __init__(self, observations_count: int,  k=3,  observations: Observations = None,
-                 metric: tp.Callable[[Observation, Observation], float] = None):
+    def __init__(self, observations_count: int, observations: Observations,
+                 metric: tp.Callable[[Observation, Observation], float], k=3):
         self._k = k
         self._observations_count = observations_count
         self._observations = observations
         self._window = deque(islice(self._observations,
-                                  len(self._observations) - self._observations_count - 1,
-                                  len(self._observations)))
+                                    len(self._observations) - self._observations_count - 1,
+                                    len(self._observations)))
         self._metric = metric
-        self._graph: deque[NNHeap] | None = None
+        self._graph: deque[NNHeap] = deque(maxlen=self._observations_count)
 
     def build(self) -> None:
-        assert self._graph is None
-
-        self._graph = deque(maxlen=self._observations_count)
-
         for i in range(0, self._observations_count):
             heap = NNHeap(self._k, self._metric, self._observations[-i - 1])
             heap.build(self._window)

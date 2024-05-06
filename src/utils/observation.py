@@ -1,10 +1,10 @@
 from numpy import ndarray
 from dataclasses import dataclass, field
 from collections import deque
+from typing import TypeAlias
 
-
-Observation = ndarray
-Observations = deque[Observation]
+Observation: TypeAlias = ndarray
+Observations: TypeAlias = deque[Observation]
 
 
 @dataclass(order=True)

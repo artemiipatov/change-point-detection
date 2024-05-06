@@ -10,7 +10,7 @@ class NNHeap:
         self._metric = metric
         self._main_observation = main_observation
         self._heap: list[Neighbour] = []
-        self._auxiliary_heap = []
+        self._auxiliary_heap: list[Neighbour] = []
 
     def build(self, neighbours: Observations) -> None:
         for neighbour in neighbours:
