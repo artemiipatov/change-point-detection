@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "knncpd"
+version = "0.1.0"
+description = ""
+authors = ["artemiipatov <patov.988@gmail.com>"]
+readme = "README.md"
+packages = [{include = "knncpd", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
