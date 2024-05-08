@@ -8,7 +8,7 @@ from src.utils.observation_heap import NNHeap
 
 class KNNGraph:
     def __init__(self, observations_count: int, observations: Observations,
-                 metric: tp.Callable[[Observation, Observation], float], k=3):
+                 metric: tp.Callable[[Observation, Observation], float], k=3) -> None:
         self._k = k
         self._observations_count = observations_count
         self._observations = observations
@@ -37,3 +37,7 @@ class KNNGraph:
         new_heap = NNHeap(self._k, self._metric, observation)
         new_heap.build(self._window)
         self._graph.append(new_heap)
+
+    def check_neighbour(self, obs_index: int, neighbour_index: int) -> bool:
+        neighbour = self._window[neighbour_index]
+        return self._graph[obs_index].find_in_heap(neighbour)

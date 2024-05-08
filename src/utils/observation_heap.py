@@ -5,7 +5,8 @@ from observation import Observation, Neighbour, Observations
 
 
 class NNHeap:
-    def __init__(self, size: int, metric: tp.Callable[[Observation, Observation], float], main_observation: Observation):
+    def __init__(self, size: int, metric: tp.Callable[[Observation, Observation], float],
+                 main_observation: Observation) -> None:
         self._size = size
         self._metric = metric
         self._main_observation = main_observation
@@ -51,3 +52,8 @@ class NNHeap:
             heapq.heapify(self._heap)
         else:
             self.build(observations)
+
+    def find_in_heap(self, observation: Observation) -> bool:
+        def predicate(x: Neighbour) -> bool:
+            return x.observation is observation
+        return any(predicate(i) for i in self._heap)

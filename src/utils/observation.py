@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from collections import deque
 from typing import TypeAlias
 
+
 Observation: TypeAlias = ndarray
 Observations: TypeAlias = deque[Observation]
 
