@@ -19,14 +19,16 @@ class KNNCPD:
         self._offset = offset
         self._window_size = window_size
         self._knngraph = knngraph.KNNGraph(k, observations, metric)
+        self._statistics: float = 0.0
 
     def start(self) -> None:
         self._knngraph.build()
 
     def update(self, observation: Observation) -> None:
         self._knngraph.update(observation)
+        self._statistics = self.calculate_statistics()
 
-    def calculate_random_variable(self, permutation: np.array, t: int):
+    def calculate_random_variable(self, permutation: np.array, t: int) -> int:
         def b(i: int, j: int) -> bool:
             pi = permutation[i]
             pj = permutation[j]
@@ -40,7 +42,7 @@ class KNNCPD:
 
         return s
 
-    def calculate_statistics(self):
+    def calculate_statistics(self) -> float:
         permutation: np.array = np.arange(self._window_size)
         np.random.shuffle(permutation)
 
@@ -50,3 +52,6 @@ class KNNCPD:
         statistics = -(self.calculate_random_variable(permutation, self._window_size - 1) - expectation) / deviation
 
         return statistics
+
+    def check_change_point(self) -> bool:
+        return self._statistics > self._threshold
