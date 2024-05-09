@@ -2,8 +2,8 @@ import typing as tp
 from collections import deque
 from itertools import islice
 
-from src.utils.observation import Observation, Observations
-from src.utils.observation_heap import NNHeap
+from utils.observation import Observation, Observations
+from utils.observation_heap import NNHeap
 
 
 class KNNGraph:
@@ -13,7 +13,7 @@ class KNNGraph:
         self._observations_count = observations_count
         self._observations = observations
         self._window = deque(islice(self._observations,
-                                    len(self._observations) - self._observations_count - 1,
+                                    len(self._observations) - self._observations_count,
                                     len(self._observations)))
         self._metric = metric
         self._graph: deque[NNHeap] = deque(maxlen=self._observations_count)

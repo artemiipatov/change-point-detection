@@ -2,14 +2,15 @@ import typing as tp
 import numpy as np
 from statistics import mean
 from math import sqrt
+from collections import deque
 
-import knngraph
-from src.utils.observation import Observation, Observations
+import knncpd.knngraph as knngraph
+from utils.observation import Observation, Observations
 
 
 class KNNCPD:
-    def __init__(self, window_size: int,  observations: Observations,
-                 metric: tp.Callable[[Observation, Observation], float], k=3,
+    def __init__(self, window_size: int, metric: tp.Callable[[Observation, Observation], float],
+                 observations: Observations | None = None, k=3,
                  threshold: float = 0.5, package_size: int = 1, offset=0) -> None:
         self._k = k
         self._metric = metric
@@ -18,15 +19,31 @@ class KNNCPD:
         self._observations = observations
         self._offset = offset
         self._window_size = window_size
-        self._knngraph = knngraph.KNNGraph(k, observations, metric)
         self._statistics: float = 0.0
+        if (observations is not None and len(observations) >= window_size):
+            self._knngraph = knngraph.KNNGraph(window_size, observations, metric)
+            self._knngraph.build()
+        else:
+            self._knngraph = None
 
-    def start(self) -> None:
-        self._knngraph.build()
+    @property
+    def statistics(self) -> float:
+        return self._statistics
 
     def update(self, observation: Observation) -> None:
-        self._knngraph.update(observation)
-        self._statistics = self.calculate_statistics()
+        if self._observations is None:
+            self._observations = deque([observation])
+            return
+        else:
+            self._observations.append(observation)
+
+        if self._knngraph is None and len(self._observations) >= self._window_size:
+            self._knngraph = knngraph.KNNGraph(self._window_size, self._observations, self._metric)
+            self._knngraph.build()
+            self._statistics = self.calculate_statistics()
+        elif self._knngraph is not None:
+            self._knngraph.update(observation)
+            self._statistics = self.calculate_statistics()
 
     def calculate_random_variable(self, permutation: np.array, t: int) -> int:
         def b(i: int, j: int) -> bool:
@@ -43,6 +60,9 @@ class KNNCPD:
         return s
 
     def calculate_statistics(self) -> float:
+        if self._observations is None or len(self._observations) < self._window_size:
+            return 0.0
+
         permutation: np.array = np.arange(self._window_size)
         np.random.shuffle(permutation)
 
