@@ -1,5 +1,7 @@
 import typing as tp
 import numpy as np
+from statistics import mean
+from math import sqrt
 
 import knngraph
 from src.utils.observation import Observation, Observations
@@ -42,5 +44,9 @@ class KNNCPD:
         permutation: np.array = np.arange(self._window_size)
         np.random.shuffle(permutation)
 
+        expectation = mean(self.calculate_random_variable(permutation, i) for i in range(self._window_size))
+        expectation_sqr = mean(self.calculate_random_variable(permutation, i)**2 for i in range(self._window_size))
+        deviation = sqrt(expectation_sqr - expectation**2)
+        statistics = -(self.calculate_random_variable(permutation, self._window_size - 1) - expectation) / deviation
 
-
+        return statistics
