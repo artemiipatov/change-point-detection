@@ -24,19 +24,18 @@ class NNHeap:
         neg_distance = -self._metric(self._main_observation, observation)
         neighbour = Neighbour(neg_distance, observation)
 
-        if len(self._heap) == self._size and neighbour.distance > self._heap[0].distance:
+        if len(self._heap) == self._size and neighbour.distance >= self._heap[0].distance:
             old_neighbour = heapq.heapreplace(self._heap, neighbour)
             self.add_auxiliary(old_neighbour)
-        elif len(self._heap) == self._size and neighbour.distance <= self._heap[0].distance:
+        elif len(self._heap) == self._size and neighbour.distance < self._heap[0].distance:
             self.add_auxiliary(neighbour)
-            heapq.heappush(self._heap, neighbour)
         else:
             heapq.heappush(self._heap, neighbour)
 
     def add_auxiliary(self, neighbour: Neighbour) -> None:
-        if len(self._auxiliary_heap) == self._size and neighbour.distance > self._auxiliary_heap[0].distance:
+        if len(self._auxiliary_heap) == self._size and neighbour.distance >= self._auxiliary_heap[0].distance:
             heapq.heapreplace(self._auxiliary_heap, neighbour)
-        else:
+        elif len(self._auxiliary_heap) < self._size:
             heapq.heappush(self._auxiliary_heap, neighbour)
 
     def remove(self, observation: Observation, observations: Observations) -> None:
@@ -44,19 +43,24 @@ class NNHeap:
             return
 
         neg_distance = -self._metric(self._main_observation, observation)
-
-        if neg_distance < self._heap[0].distance:
-            return
-
         neighbour = Neighbour(neg_distance, observation)
-        self._heap.remove(neighbour)
 
-        if not self._auxiliary_heap:
-            new_neighbour = heapq.heappop(self._auxiliary_heap)
-            heapq.heappush(self._heap, new_neighbour)
+        if neg_distance >= self._heap[0].distance and neighbour in self._heap:
+            self._heap.remove(neighbour)
             heapq.heapify(self._heap)
-        else:
-            self.build(observations)
+
+            if self._auxiliary_heap:
+                new_neighbour = heapq.nlargest(1, self._auxiliary_heap)[0]
+                self._auxiliary_heap.remove(new_neighbour)
+                heapq.heapify(self._auxiliary_heap)
+                heapq.heappush(self._heap, new_neighbour)
+            else:
+                self.build(observations)
+        elif (self._auxiliary_heap
+              and neg_distance >= self._auxiliary_heap[0].distance
+              and neighbour in self._auxiliary_heap):
+            self._auxiliary_heap.remove(neighbour)
+            heapq.heapify(self._auxiliary_heap)
 
     def find_in_heap(self, observation: Observation) -> bool:
         def predicate(x: Neighbour) -> bool:

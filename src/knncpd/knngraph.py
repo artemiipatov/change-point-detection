@@ -9,24 +9,23 @@ from utils.observation_heap import NNHeap
 class KNNGraph:
     def __init__(self, observations_count: int, observations: Observations,
                  metric: tp.Callable[[Observation, Observation], float], k=3) -> None:
-        self._k = k
-        self._observations_count = observations_count
+        self._window_size = observations_count
         self._observations = observations
         self._window = deque(islice(self._observations,
-                                    len(self._observations) - self._observations_count,
-                                    len(self._observations)))
+                                    len(self._observations) - self._window_size,
+                                    len(self._observations)), maxlen=self._window_size)
         self._metric = metric
-        self._graph: deque[NNHeap] = deque(maxlen=self._observations_count)
+        self._graph: deque[NNHeap] = deque(maxlen=self._window_size)
+        self._k = k
 
     def build(self) -> None:
-        for i in range(0, self._observations_count):
+        for i in range(self._window_size):
             heap = NNHeap(self._k, self._metric, self._observations[-i - 1])
             heap.build(self._window)
             self._graph.appendleft(heap)
 
     def update(self, observation: Observation) -> None:
         obsolete_obs = self._window[0]
-        self._observations.append(observation)
         self._window.append(observation)
         self._graph.popleft()
 

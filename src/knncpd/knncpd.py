@@ -55,7 +55,7 @@ class KNNCPD:
 
         for i in range(self._window_size):
             for j in range(self._window_size):
-                s += (self._knngraph.check_neighbour(i, j) + self._knngraph.check_neighbour(i, j)) * b(i, j)
+                s += (self._knngraph.check_neighbour(i, j) + self._knngraph.check_neighbour(j, i)) * b(i, j)
 
         return s
 
@@ -69,7 +69,7 @@ class KNNCPD:
         expectation = mean(self.calculate_random_variable(permutation, i) for i in range(self._window_size))
         expectation_sqr = mean(self.calculate_random_variable(permutation, i)**2 for i in range(self._window_size))
         deviation = sqrt(expectation_sqr - expectation**2)
-        statistics = -(self.calculate_random_variable(permutation, self._window_size - 1) - expectation) / deviation
+        statistics = -(self.calculate_random_variable(permutation, self._window_size // 2) - expectation) / deviation
 
         return statistics
 

@@ -9,6 +9,12 @@ Observations: TypeAlias = deque[Observation]
 
 
 @dataclass(order=True)
+class Observation:
+    time: int
+    value: ndarray = field(compare=False)
+
+
+@dataclass(order=True)
 class Neighbour:
     distance: float
-    observation: Observation = field(compare=False)
+    observation: Observation
