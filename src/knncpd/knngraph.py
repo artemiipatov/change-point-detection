@@ -19,12 +19,19 @@ class KNNGraph:
         self._k = k
 
     def build(self) -> None:
+        """
+        Build KNN graph according to the given parameters
+        """
         for i in range(self._window_size):
             heap = NNHeap(self._k, self._metric, self._observations[-i - 1])
             heap.build(self._window)
             self._graph.appendleft(heap)
 
     def update(self, observation: Observation) -> None:
+        """
+        Add observation to KNN graph
+        :param observation: New observation
+        """
         obsolete_obs = self._window[0]
         self._window.append(observation)
         self._graph.popleft()
@@ -37,6 +44,12 @@ class KNNGraph:
         new_heap.build(self._window)
         self._graph.append(new_heap)
 
-    def check_neighbour(self, obs_index: int, neighbour_index: int) -> bool:
-        neighbour = self._window[neighbour_index]
-        return self._graph[obs_index].find_in_heap(neighbour)
+    def check_neighbour(self, first_index: int, second_index: int) -> bool:
+        """
+        Checks if the second observation is among the k nearest neighbours of the first observation
+        :param first_index:
+        :param second_index:
+        :return:
+        """
+        neighbour = self._window[second_index]
+        return self._graph[first_index].find_in_heap(neighbour)

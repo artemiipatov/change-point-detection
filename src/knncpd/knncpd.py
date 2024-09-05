@@ -20,7 +20,7 @@ class KNNCPD:
         self._offset = offset
         self._window_size = window_size
         self._statistics: float = 0.0
-        if (observations is not None and len(observations) >= window_size):
+        if observations is not None and len(observations) >= window_size:
             self._knngraph = knngraph.KNNGraph(window_size, observations, metric)
             self._knngraph.build()
         else:
@@ -28,9 +28,17 @@ class KNNCPD:
 
     @property
     def statistics(self) -> float:
+        """
+        Get the statistics of the current model
+        :return: The statistics value
+        """
         return self._statistics
 
     def update(self, observation: Observation) -> None:
+        """
+        Add an observation to the KNN graph
+        :param observation: New observation
+        """
         if self._observations is None:
             self._observations = deque([observation])
             return
@@ -46,6 +54,12 @@ class KNNCPD:
             self._statistics = self.calculate_statistics()
 
     def calculate_random_variable(self, permutation: np.array, t: int) -> int:
+        """
+        Calculate a random variable from a permutation and a fixed point
+        :param permutation: permutation of observations
+        :param t: fixed point that splits the permutation
+        :return: value of the random variable
+        """
         def b(i: int, j: int) -> bool:
             pi = permutation[i]
             pj = permutation[j]
@@ -60,6 +74,10 @@ class KNNCPD:
         return s
 
     def calculate_statistics(self) -> float:
+        """
+        Calculate the statistics of the KNN graph in specified window
+        :return: statistics value
+        """
         if self._observations is None or len(self._observations) < self._window_size:
             return 0.0
 
@@ -74,4 +92,8 @@ class KNNCPD:
         return statistics
 
     def check_change_point(self) -> bool:
+        """
+        Check if change point occurs in current sequence
+        :return: True if change point occurs, False otherwise
+        """
         return self._statistics > self._threshold
